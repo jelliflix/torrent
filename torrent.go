@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 var magnet2InfoHashRegex = regexp.MustCompile(`btih:.+?&`)
@@ -17,20 +15,18 @@ type findFunc func(context.Context, Client) ([]Result, error)
 
 type Client interface {
 	FindMovie(ctx context.Context, imdbID string) ([]Result, error)
-	FindEpisode(ctx context.Context, imdbID string, season, episode int) ([]Result, error)
+	FindEpisode(ctx context.Context, imdbID, title string) ([]Result, error)
 }
 
 type Torrent struct {
 	clients []Client
 	timeout time.Duration
-	logger  *zap.Logger
 }
 
-func NewTorrent(clients []Client, timeout time.Duration, logger *zap.Logger) *Torrent {
+func NewTorrent(clients []Client, timeout time.Duration) *Torrent {
 	return &Torrent{
 		clients: clients,
 		timeout: timeout,
-		logger:  logger,
 	}
 }
 
@@ -41,9 +37,9 @@ func (t *Torrent) FindMovie(ctx context.Context, imdbID string) ([]Result, error
 	return t.find(ctx, find)
 }
 
-func (t *Torrent) FindEpisode(ctx context.Context, imdbID string, season, episode int) ([]Result, error) {
+func (t *Torrent) FindEpisode(ctx context.Context, imdbID, title string) ([]Result, error) {
 	find := func(ctx context.Context, client Client) ([]Result, error) {
-		return client.FindEpisode(ctx, imdbID, season, episode)
+		return client.FindEpisode(ctx, imdbID, title)
 	}
 	return t.find(ctx, find)
 }
