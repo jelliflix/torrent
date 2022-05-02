@@ -119,7 +119,6 @@ func (t *Torrent) find(ctx context.Context, find findFunc) ([]Result, error) {
 
 type Result struct {
 	Name      string
-	Title     string
 	Quality   string
 	InfoHash  string
 	MagnetURL string
